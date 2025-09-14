@@ -19,6 +19,13 @@ if ($Debug) {
   $DebugPreference = 'Continue'
 }
 
+if ($PSVersionTable.PSVersion.Major -lt 7) {
+  Write-Host "This script requires PowerShell 7 or later." -Red
+  Write-Host "Run it in a pwsh terminal environment." -Red
+  Write-Host "If not installed, install 'Microsoft.PowerShell' via Winget or Uniget." -Red
+  exit 1
+}
+
 <#*==========================================================================
 *	ℹ		PARAMETERS
 
