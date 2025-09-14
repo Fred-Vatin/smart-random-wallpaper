@@ -8,12 +8,16 @@ param(
   [switch]$Show,
   [switch]$NoTags,
   [switch]$Help,
-  [switch]$Man
+  [switch]$Man,
+  [switch]$Debug
 )
 
 # Stop the script if an error occurs.
 $ErrorActionPreference = 'Stop'
 
+if ($Debug) {
+  $DebugPreference = 'Continue'
+}
 
 <#*==========================================================================
 *	ℹ		PARAMETERS
@@ -34,7 +38,12 @@ New-Variable -Name EnvPathName -Value "WallpapersPath" -Option Constant
 New-Variable -Name EnvPrevName -Value "WallpaperPrevious" -Option Constant
 New-Variable -Name WallpapersFolder -Value "wallpapers" -Option Constant
 New-Variable -Name WallpapersPathFallback -Value "$env:LOCALAPPDATA\Lively Wallpaper\Library\wallpapers" -Option Constant
+New-Variable -Name LivelyBin -Value "$env:ProgramFiles\Lively Wallpaper\Lively.exe"
+New-Variable -Name repo -Value "https://github.com/Fred-Vatin/smart-random-wallpaper/wiki" -Option Constant
 
+<#*==========================================================================
+* ℹ		GLOBAL INIT
+===========================================================================#>
 # If you set a custom path with -SetPath, get it
 $WallpapersPath = [System.Environment]::GetEnvironmentVariable($EnvPathName, "User")
 
@@ -46,8 +55,25 @@ if (-not ($WallpapersPath)) {
   }
 }
 
+# If lively is not installed in program files, try to find the CLI tool
+if (-not (Test-Path -Path $LivelyBin -PathType Leaf)) {
+  if (Get-Command Livelycu -ErrorAction SilentlyContinue) {
+    $LivelyBin = "Livelycu"
+  }
+  else {
+    Write-Host "`nERROR: LIVELY BINARY NOT FOUND" -ForegroundColor Red
+    Write-Host "`t- `"Lively.exe`" not found in `"%ProgramFiles%\Lively Wallpaper`"" -ForegroundColor Red
+    Write-Host "`t- `"Livelycu`" CLI tool not found`n" -ForegroundColor Red
+    Write-Host "If Lively is already installed, you need to install the CLI tool." -ForegroundColor Red
+    Read-Host "Press [Enter] to open the wiki on your browser and learn how to do it..."
+    Start-Process "$repo"
+    exit
+  }
+}
+
 Write-Debug "WallpapersPath: $WallpapersPath"
 Write-Debug "ListPath: $ListPath"
+Write-Debug "LivelyBin: $LivelyBin"
 
 <#*==========================================================================
 * ℹ                   FUNCTIONS
@@ -58,8 +84,8 @@ function Show-Help {
   Write-Host "========================`n" -ForegroundColor Magenta
   Write-Host "-Help" -ForegroundColor Magenta
   Write-Host "`tOpen this help (default)`n"
-  # Write-Host "-Man" -ForegroundColor Magenta
-  # Write-Host "`tUse this to open wiki at `"$repo`"`n"
+  Write-Host "-Man" -ForegroundColor Magenta
+  Write-Host "`tUse this to open wiki at `"$repo`"`n"
 
   Write-Host "-UpdateList" -ForegroundColor Magenta
   Write-Host "`tCreate or update the wallpapers list and save it to: "
@@ -96,8 +122,10 @@ function Show-Help {
 
   Write-Host "-SetWallpapersPath" -ForegroundColor Magenta
   Write-Host "`tUse this parameter to run an assistant to help you to define"
-  Write-Host "`tyour lively wallpapers path in your user environment variable."
+  Write-Host "`tthe custom lively wallpapers path to use."
+  Write-Host "`tIt will be saved in the environment variable named `"$EnvPathName`"."
   Write-Host "`tBy default, this script use the `"$WallpapersFolder`" directory in the same path as this script."
+  Write-Host "`tIf not found it tries to use the default path: `"$WallpapersPathFallback`"."
   Write-Host "`tCurrent value: " -NoNewline
   Write-Host "`t$WallpapersPath`n" -ForegroundColor Cyan
 
@@ -105,7 +133,8 @@ function Show-Help {
   Write-Host "`tUse this parameter to delete the " -NoNewline
   Write-Host "$EnvPathName " -ForegroundColor Cyan -NoNewline
   Write-Host "environment variable."
-  Write-Host "`tThen this script will use the `"$WallpapersFolder`" directory in the same path as this script.`n"
+  Write-Host "`tThen this script will use the `"$WallpapersFolder`" directory in the same path as this script`n"
+  Write-Host "`tOr `"$WallpapersPathFallback`" if not found.`n"
 
   Write-Host "ListPath" -ForegroundColor Yellow
   Write-Host "`tThis is where the `"$ListFile`" is saved." -ForegroundColor DarkGray
@@ -113,6 +142,13 @@ function Show-Help {
   Write-Host "`tCurrent value: " -NoNewline
   Write-Host "`t$ListPath`n" -ForegroundColor Cyan
   Write-Host "`tEdit this script to customize this path if you really need it."
+
+  Write-Host "Binary path" -ForegroundColor Yellow
+  Write-Host "`tThis is the install path of Lively.exe or the Livelycu" -ForegroundColor DarkGray
+  Write-Host "`tBy default it searches for `"$env:ProgramFiles\Lively Wallpaper\Lively.exe`"" -ForegroundColor DarkGray
+  Write-Host "`tIf not found, it searches if Livelycu CLI tool is available in path" -ForegroundColor DarkGray
+  Write-Host "`tBinary found and in use: " -NoNewline
+  Write-Host "`t$LivelyBin`n" -ForegroundColor Cyan
 }
 
 function TerminateWithError {
@@ -290,8 +326,6 @@ $ImportList = {
 $SetRandom = {
   param($List = $Wallpapers)
 
-  Test-CLI-Installation
-
   $WallpaperPrevious = [System.Environment]::GetEnvironmentVariable($EnvPrevName, "User")
 
   do {
@@ -319,7 +353,7 @@ $SetRandom = {
 
   # Write-Host "`$randomWallpaperPath: $randomWallpaperPath"
 
-  livelycu setwp --file "$randomWallpaperPath"
+  & $LivelyBin setwp --file "$randomWallpaperPath"
 
   Write-Host "`nNew wallapaper set: " -NoNewline
   Write-Host "$($randomWallpaper.Title)" -ForegroundColor Green -NoNewline
@@ -356,8 +390,16 @@ $TagsListOut = {
 * ℹ		HANDLE HELP PARAMETER
 ===========================================================================#>
 
-if ((-not $UpdateList -and -not $All -and -not $SetWallpapersPath -and -not $ForgetWallpapersPath -and -not $IncludeTags -and -not $ExcludeTags -and -not $NoTags -and -not $Show -and -not $Help -and -not $Man) -or ($Help)) {
+if ((-not $UpdateList -and -not $All -and -not $Man -and -not $SetWallpapersPath -and -not $ForgetWallpapersPath -and -not $IncludeTags -and -not $ExcludeTags -and -not $NoTags -and -not $Show -and -not $Help -and -not $Man) -or ($Help)) {
   Show-Help
+  exit
+}
+
+<#*==========================================================================
+* ℹ		HANDLE MAN PARAMETER
+===========================================================================#>
+if ($man) {
+  Start-Process "$repo"
   exit
 }
 
