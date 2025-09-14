@@ -5,3 +5,9 @@ Here is a solution to add tagging support to [Lively Wallpaper](https://github.c
 It only needs 2 powershell scripts. If you use [Rainmeter](https://www.rainmeter.net/), import the config (*to do*) and edit the option to auto change your wallpaper every hour and or manually set the ones using some specific tags.
 
 Read the [wiki](https://github.com/Fred-Vatin/smart-random-wallpaper/wiki) to learn how.
+
+---
+
+> [!NOTE]
+> I had to create this solution because the [Lively Wallpaper](https://github.com/rocksdanister/lively) author refuses to implement a built-in tags feature.
+> Check [#2871](https://github.com/rocksdanister/lively/issues/2871).
