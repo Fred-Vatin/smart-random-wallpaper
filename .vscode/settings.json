@@ -1,0 +1,4 @@
+{
+	"powershell.debugging.createTemporaryIntegratedConsole": true,
+	"powershell.debugging.executeMode": "Call"
+}

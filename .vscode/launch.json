@@ -1,0 +1,47 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "-Help",
+			"type": "PowerShell",
+			"request": "launch",
+			"script": "${workspaceFolder}\\Set random Wallpaper.ps1",
+			"cwd": "${workspaceFolder}",
+			"args": [],
+			"internalConsoleOptions": "openOnSessionStart",
+			"presentation": {
+				"group": "Set random Wallpaper ",
+				"order": 1
+			}
+		},
+		{
+			"name": "-All -Show",
+			"type": "PowerShell",
+			"request": "launch",
+			"script": "${workspaceFolder}\\Set random Wallpaper.ps1",
+			"cwd": "${workspaceFolder}",
+			"args": ["-All -Show"],
+			"internalConsoleOptions": "openOnSessionStart",
+			"presentation": {
+				"group": "Set random Wallpaper ",
+				"order": 2
+			}
+		},
+		{
+			"name": "-IncludeTags",
+			"type": "PowerShell",
+			"request": "launch",
+			"script": "${workspaceFolder}\\Set random Wallpaper.ps1",
+			"cwd": "${workspaceFolder}",
+			"args": ["-IncludeTags \"video night\""],
+			"internalConsoleOptions": "openOnSessionStart",
+			"presentation": {
+				"group": "Set random Wallpaper ",
+				"order": 3
+			}
+		}
+	]
+}
