@@ -33,15 +33,21 @@ New-Variable -Name ListPath -Value $(Join-Path -Path $WorkingDir -ChildPath $Lis
 New-Variable -Name EnvPathName -Value "WallpapersPath" -Option Constant
 New-Variable -Name EnvPrevName -Value "WallpaperPrevious" -Option Constant
 New-Variable -Name WallpapersFolder -Value "wallpapers" -Option Constant
+New-Variable -Name WallpapersPathFallback -Value "$env:LOCALAPPDATA\Lively Wallpaper\Library\wallpapers" -Option Constant
 
+# If you set a custom path with -SetPath, get it
 $WallpapersPath = [System.Environment]::GetEnvironmentVariable($EnvPathName, "User")
 
 if (-not ($WallpapersPath)) {
   $WallpapersPath = (Join-Path -Path $WorkingDir -ChildPath $WallpapersFolder)
+
+  if (-not (Test-Path $WallpapersPath -PathType Container)) {
+    $WallpapersPath = $WallpapersPathFallback
+  }
 }
 
-# Write-Output "WallpapersPath: $WallpapersPath"
-# Write-Output "ListPath: $ListPath"
+Write-Debug "WallpapersPath: $WallpapersPath"
+Write-Debug "ListPath: $ListPath"
 
 <#*==========================================================================
 * ℹ                   FUNCTIONS
