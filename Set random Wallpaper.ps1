@@ -44,8 +44,8 @@ New-Variable -Name ListPath -Value $(Join-Path -Path $WorkingDir -ChildPath $Lis
 New-Variable -Name EnvPathName -Value "WallpapersPath" -Option Constant
 New-Variable -Name EnvPrevName -Value "WallpaperPrevious" -Option Constant
 New-Variable -Name WallpapersFolder -Value "wallpapers" -Option Constant
-New-Variable -Name WallpapersPathFallback -Value "$env:LOCALAPPDATA\Lively Wallpaper\Library\wallpapers" -Option Constant
-New-Variable -Name LivelyBin -Value "$env:ProgramFiles\Lively Wallpaper\Lively.exe"
+New-Variable -Name WallpapersPathFallback -Value "$env:LOCALAPPDATA/Lively Wallpaper/Library/wallpapers" -Option Constant
+New-Variable -Name LivelyBin -Value "$env:ProgramFiles/Lively Wallpaper/Lively.exe"
 New-Variable -Name repo -Value "https://github.com/Fred-Vatin/smart-random-wallpaper/wiki" -Option Constant
 
 <#*==========================================================================
@@ -152,7 +152,7 @@ function Show-Help {
 
   Write-Host "Binary path" -ForegroundColor Yellow
   Write-Host "`tThis is the install path of Lively.exe or the Livelycu" -ForegroundColor DarkGray
-  Write-Host "`tBy default it searches for `"$env:ProgramFiles\Lively Wallpaper\Lively.exe`"" -ForegroundColor DarkGray
+  Write-Host "`tBy default it searches for `"$env:ProgramFiles/Lively Wallpaper/Lively.exe`"" -ForegroundColor DarkGray
   Write-Host "`tIf not found, it searches if Livelycu CLI tool is available in path" -ForegroundColor DarkGray
   Write-Host "`tBinary found and in use: " -NoNewline
   Write-Host "`t$LivelyBin`n" -ForegroundColor Cyan
