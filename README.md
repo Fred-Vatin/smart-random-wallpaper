@@ -6,6 +6,14 @@ It only needs 2 powershell scripts. If you use [Rainmeter](https://www.rainmeter
 
 Read the [wiki](https://github.com/Fred-Vatin/smart-random-wallpaper/wiki) to learn how.
 
+Once installed, you can run commands like that where `ws` stands for the `Set random Wallpaper.ps1` path.
+
+```pwsh
+ws -IncludeTags "day clock" -ExcludeTags "rain"
+```
+
+A new random wallpaper will be set corresponding to the filter.
+
 ---
 
 > [!NOTE]
