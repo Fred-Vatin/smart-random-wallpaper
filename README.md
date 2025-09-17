@@ -9,7 +9,7 @@ Read the [wiki](https://github.com/Fred-Vatin/smart-random-wallpaper/wiki) to le
 Once installed, you can run commands like that where `ws` stands for the `Set random Wallpaper.ps1` path.
 
 ```pwsh
-ws -IncludeTags "day clock" -ExcludeTags "rain"
+sw -IncludeTags "day clock" -ExcludeTags "rain"
 ```
 
 A new random wallpaper will be set corresponding to the filter.
