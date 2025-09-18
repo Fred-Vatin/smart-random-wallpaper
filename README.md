@@ -14,6 +14,11 @@ sw -IncludeTags "day clock" -ExcludeTags "rain"
 
 A new random wallpaper will be set corresponding to the filter.
 
+## Screenshots
+Rainmeter config with tooltip.
+
+<img width="358" height="229" alt="image" src="https://github.com/user-attachments/assets/41dea42a-0e10-4492-a4e8-fa9f2de13b02" />
+
 ---
 
 > [!NOTE]
