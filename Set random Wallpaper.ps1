@@ -8,6 +8,7 @@ param(
   [switch]$Show,
   [switch]$NoTags,
   [switch]$Help,
+  [switch]$Restart,
   [switch]$Man,
   [switch]$Debug
 )
@@ -100,6 +101,9 @@ function Show-Help {
   Write-Host "`tThis function is automatically called if the list is not found when using other parameters below." -ForegroundColor DarkGray
   Write-Host "`tUse it to force an update of the list.`n" -ForegroundColor DarkGray
 
+  Write-Host "-Restart" -ForegroundColor Magenta
+  Write-Host "`tRestart Lively. Useful if wallpaper is bugging or crashes."
+
   Write-Host "Here are the parameters to set a random wallpaper using tags." -ForegroundColor Yellow
   Write-Host "You can use both -IncludeTags and -ExcludeTags at the same time." -ForegroundColor Yellow
   Write-Host "But -IncludeTags must come first." -ForegroundColor Yellow
@@ -134,7 +138,7 @@ function Show-Help {
   Write-Host "`tBy default, this script use the `"$WallpapersFolder`" directory in the same path as this script."
   Write-Host "`tIf not found it tries to use the default path: `"$WallpapersPathFallback`"."
   Write-Host "`tCurrent value: " -NoNewline
-  Write-Host "`t$WallpapersPath`n" -ForegroundColor Cyan
+  Write-Host "$WallpapersPath`n" -ForegroundColor Cyan
 
   Write-Host "-ForgetWallpapersPath" -ForegroundColor Magenta
   Write-Host "`tUse this parameter to delete the " -NoNewline
@@ -147,7 +151,7 @@ function Show-Help {
   Write-Host "`tThis is where the `"$ListFile`" is saved." -ForegroundColor DarkGray
   Write-Host "`tBy default in the same path as this script." -ForegroundColor DarkGray
   Write-Host "`tCurrent value: " -NoNewline
-  Write-Host "`t$ListPath`n" -ForegroundColor Cyan
+  Write-Host "$ListPath`n" -ForegroundColor Cyan
   Write-Host "`tEdit this script to customize this path if you really need it."
 
   Write-Host "Binary path" -ForegroundColor Yellow
@@ -155,7 +159,7 @@ function Show-Help {
   Write-Host "`tBy default it searches for `"$env:ProgramFiles/Lively Wallpaper/Lively.exe`"" -ForegroundColor DarkGray
   Write-Host "`tIf not found, it searches if Livelycu CLI tool is available in environment variable path" -ForegroundColor DarkGray
   Write-Host "`tBinary found and in use: " -NoNewline
-  Write-Host "`t$LivelyBin`n" -ForegroundColor Cyan
+  Write-Host "$LivelyBin`n" -ForegroundColor Cyan
 }
 
 function TerminateWithError {
@@ -397,7 +401,7 @@ $TagsListOut = {
 * ℹ		HANDLE HELP PARAMETER
 ===========================================================================#>
 
-if ((-not $UpdateList -and -not $All -and -not $Man -and -not $SetWallpapersPath -and -not $ForgetWallpapersPath -and -not $IncludeTags -and -not $ExcludeTags -and -not $NoTags -and -not $Show -and -not $Help -and -not $Man) -or ($Help)) {
+if ((-not $UpdateList -and -not $All -and -not $Restart -and -not $Man -and -not $SetWallpapersPath -and -not $ForgetWallpapersPath -and -not $IncludeTags -and -not $ExcludeTags -and -not $NoTags -and -not $Show -and -not $Help -and -not $Man) -or ($Help)) {
   Show-Help
   exit
 }
@@ -564,6 +568,28 @@ if ($ExcludeTags) {
     & $TagsListOut
 
     . $SetRandom -List $FilteredList
+  }
+
+  exit
+}
+
+<#*==========================================================================
+* ℹ		HANDLE RESTART
+===========================================================================#>
+
+if ($Restart) {
+  & $LivelyBin --shutdown true
+  Wait-Process -Name "Lively"
+  Write-Host "Lively has quit`n"
+  Write-Host "Starting Lively…`n"
+  & $LivelyBin
+  $process = Get-Process -Name "Lively" -ErrorAction SilentlyContinue
+
+  if ($process) {
+    Write-Host "Lively is running !" -ForegroundColor Green
+  }
+  else {
+    TerminateWithError -errorMessage "Lively failed to launch probably because the binary is not found: `"$LivelyBin`""
   }
 
   exit
