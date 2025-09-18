@@ -90,7 +90,7 @@ function Show-Help {
   Write-Host "`nℹ`tPARAMETERS" -ForegroundColor Magenta
   Write-Host "========================`n" -ForegroundColor Magenta
   Write-Host "-Help" -ForegroundColor Magenta
-  Write-Host "`tOpen this help (default)`n"
+  Write-Host "`tDisplays this help (default)`n"
   Write-Host "-Man" -ForegroundColor Magenta
   Write-Host "`tUse this to open wiki at `"$repo`"`n"
 
@@ -107,13 +107,13 @@ function Show-Help {
   Write-Host "-All" -ForegroundColor Magenta
   Write-Host "`tIt will set a wallpaper using any wallpapers in `"$ListFile`"`n"
   Write-Host "-IncludeTags <String>" -ForegroundColor Magenta
-  Write-Host "`tPass one or serveral tags as word like `"day clock`""
+  Write-Host "`tPass one or several tags as word like `"day clock`""
   Write-Host "`tOnly wallpapers having those tags in description will be used`n"
   Write-Host "-ExcludeTags <String>" -ForegroundColor Magenta
   Write-Host "`tPass one or several tags as word like `"day clock`""
   Write-Host "`tWallpapers having those tags in description will NOT be used even if they are in -IncludeTags`n"
 
-  Write-Host "You can add these parameters after -All or -IncludeTags or -ExcludeTags" -ForegroundColor Yellow
+  Write-Host "You can add parameters below after -All or -IncludeTags or -ExcludeTags" -ForegroundColor Yellow
 
   Write-Host "-Show" -ForegroundColor Magenta
   Write-Host "`tDisplay the list returned by tags filter in a table in the console."
@@ -153,7 +153,7 @@ function Show-Help {
   Write-Host "Binary path" -ForegroundColor Yellow
   Write-Host "`tThis is the install path of Lively.exe or the Livelycu" -ForegroundColor DarkGray
   Write-Host "`tBy default it searches for `"$env:ProgramFiles/Lively Wallpaper/Lively.exe`"" -ForegroundColor DarkGray
-  Write-Host "`tIf not found, it searches if Livelycu CLI tool is available in path" -ForegroundColor DarkGray
+  Write-Host "`tIf not found, it searches if Livelycu CLI tool is available in environment variable path" -ForegroundColor DarkGray
   Write-Host "`tBinary found and in use: " -NoNewline
   Write-Host "`t$LivelyBin`n" -ForegroundColor Cyan
 }
