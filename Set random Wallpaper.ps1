@@ -37,6 +37,7 @@ Run the script with the -help parameter to know how to use it
 * ℹ                   DEFAULT VARIABLES
 ===========================================================================#>
 
+$OriginalWorkingDir = Get-Location
 Set-Location $PSScriptRoot
 $WorkingDir = Get-Location
 
@@ -75,6 +76,7 @@ if (-not (Test-Path -Path $LivelyBin -PathType Leaf)) {
     Write-Host "If Lively is already installed, you need to install the CLI tool." -ForegroundColor Red
     Read-Host "Press [Enter] to open the wiki on your browser and learn how to do it..."
     Start-Process "$repo"
+    Set-Location $OriginalWorkingDir
     exit
   }
 }
@@ -188,6 +190,7 @@ function TerminateWithError {
     Write-Host "   $errorMessage`n`nEXIT" -ForegroundColor Red
   }
 
+  Set-Location $OriginalWorkingDir
   exit 1
 }
 
@@ -300,8 +303,9 @@ function UpdateList {
     }
   }
   else {
-    Write-Warning "`"$WallpapersFolder`" folder doesn’t exist in:"
+    Write-Warning "`"$WallpapersFolder`" folder doesn’t exist in: "
     Write-Host "$WallpapersPath" -ForegroundColor Cyan
+    Set-Location $OriginalWorkingDir
     exit
   }
 
@@ -403,6 +407,7 @@ $TagsListOut = {
 
 if ((-not $UpdateList -and -not $All -and -not $Restart -and -not $Man -and -not $SetWallpapersPath -and -not $ForgetWallpapersPath -and -not $IncludeTags -and -not $ExcludeTags -and -not $NoTags -and -not $Show -and -not $Help -and -not $Man) -or ($Help)) {
   Show-Help
+  Set-Location $OriginalWorkingDir
   exit
 }
 
@@ -411,6 +416,7 @@ if ((-not $UpdateList -and -not $All -and -not $Restart -and -not $Man -and -not
 ===========================================================================#>
 if ($man) {
   Start-Process "$repo"
+  Set-Location $OriginalWorkingDir
   exit
 }
 
@@ -419,6 +425,7 @@ if ($man) {
 ===========================================================================#>
 if ($UpdateList) {
   UpdateList
+  Set-Location $OriginalWorkingDir
   exit
 }
 
@@ -427,6 +434,7 @@ if ($UpdateList) {
 ===========================================================================#>
 if ($SetWallpapersPath) {
   $Path = SetPath
+  Set-Location $OriginalWorkingDir
   exit
 }
 
@@ -457,6 +465,7 @@ if ($ForgetWallpapersPath) {
     TerminateWithError -errorMessage "The environment variable `"$EnvPathName`" failed to be deleted."
   }
 
+  Set-Location $OriginalWorkingDir
   exit
 }
 
@@ -474,6 +483,7 @@ if ($All) {
     $Wallpapers |
     Select-Object -Property Title, Tags, Folder |
     Sort-Object -Property Title
+    Set-Location $OriginalWorkingDir
     exit
   }
 
@@ -486,6 +496,7 @@ if ($All) {
     Write-Host "$ListPath`n" -ForegroundColor Cyan
     $FilteredList | Select-Object Title, Tags, Folder | Sort-Object Title
 
+    Set-Location $OriginalWorkingDir
     exit
   }
 
@@ -494,6 +505,7 @@ if ($All) {
 
   . $SetRandom
 
+  Set-Location $OriginalWorkingDir
   exit
 }
 
@@ -539,6 +551,7 @@ if ($IncludeTags) {
     . $SetRandom -List $FilteredList
   }
 
+  Set-Location $OriginalWorkingDir
   exit
 }
 
@@ -570,6 +583,7 @@ if ($ExcludeTags) {
     . $SetRandom -List $FilteredList
   }
 
+  Set-Location $OriginalWorkingDir
   exit
 }
 
@@ -592,5 +606,6 @@ if ($Restart) {
     TerminateWithError -errorMessage "Lively failed to launch probably because the binary is not found: `"$LivelyBin`""
   }
 
+  Set-Location $OriginalWorkingDir
   exit
 }
