@@ -24,3 +24,7 @@ Rainmeter config with tooltip.
 > [!NOTE]
 > I had to create this solution because the [Lively Wallpaper](https://github.com/rocksdanister/lively) author refuses to implement a built-in tags feature.
 > Check [#2871](https://github.com/rocksdanister/lively/issues/2871).
+
+---
+
+[![BUY ME A COFFEE](https://img.shields.io/badge/BUY%20ME%20A%20COFFEE-ffffff?logo=buymeacoffee&style=for-the-badge&color=710067&logoColor=ffe071)](https://github.com/sponsors/Fred-Vatin)
