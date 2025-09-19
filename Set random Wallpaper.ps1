@@ -104,7 +104,7 @@ function Show-Help {
   Write-Host "`tUse it to force an update of the list.`n" -ForegroundColor DarkGray
 
   Write-Host "-Restart" -ForegroundColor Magenta
-  Write-Host "`tRestart Lively. Useful if wallpaper is bugging or crashes."
+  Write-Host "`tRestart Lively. Useful if wallpaper is bugging or crashes.`n"
 
   Write-Host "Here are the parameters to set a random wallpaper using tags." -ForegroundColor Yellow
   Write-Host "You can use both -IncludeTags and -ExcludeTags at the same time." -ForegroundColor Yellow
