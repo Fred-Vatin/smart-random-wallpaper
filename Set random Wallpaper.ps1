@@ -596,7 +596,7 @@ if ($Restart) {
   Wait-Process -Name "Lively"
   Write-Host "Lively has quit`n"
   Write-Host "Starting Lively…`n"
-  & $LivelyBin
+  & $LivelyBin --showApp true
   $process = Get-Process -Name "Lively" -ErrorAction SilentlyContinue
 
   if ($process) {
