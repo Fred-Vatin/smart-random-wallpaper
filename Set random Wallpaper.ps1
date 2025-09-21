@@ -593,8 +593,7 @@ if ($ExcludeTags) {
 
 if ($Restart) {
 
-  $ProcessName = "Lively
-  "
+  $ProcessName = "Lively"
   if ($LivelyBin -eq "Livelycu") {
     $ProcessName = $LivelyBin
   }
