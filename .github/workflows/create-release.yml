@@ -99,10 +99,17 @@ jobs:
         run: |
           gh release upload ${{ needs.release-please.outputs.release--tag_name }} ./LivelyWallpaperRandom-${{ needs.release-please.outputs.release--tag_name }}.zip --clobber
 
-      - name: Get release-notes
-        id: get-notes
+      # - name: Get release-notes
+      #   id: get-notes
+      #   run: |
+      #     echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+      #     cat ${{ env.RELEASE_NOTES_PATH }} >> $GITHUB_OUTPUT
+      #     echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Concatenate release-notes
+        id: edit-notes
         run: |
-          cat ${{ env.RELEASE_NOTES_PATH }} | tee -a  $GITHUB_OUTPUT
+          gh release edit ${{ needs.release-please.outputs.release--tag_name }} --notes "$(gh release view ${{ needs.release-please.outputs.release--tag_name }} --json body --jq '.body') $(cat ${{ env.RELEASE_NOTES_PATH }})"
 
       - name: Status
         run: echo "🍏 This job's status is ${{ job.status }}."

@@ -1,4 +1,7 @@
 {
 	"powershell.debugging.createTemporaryIntegratedConsole": true,
-	"powershell.debugging.executeMode": "Call"
+	"powershell.debugging.executeMode": "Call",
+	"[markdown]": {
+		"editor.formatOnSave": false
+	}
 }
