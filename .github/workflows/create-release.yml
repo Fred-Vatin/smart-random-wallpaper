@@ -17,7 +17,8 @@ jobs:
 
     outputs:
       release--tag_name: ${{ steps.release.outputs.tag_name }}
-      release--release_created: ${{ steps.release.outputs.release_created }}
+      release--releases_created: ${{ steps.release.outputs.releases_created }}
+      release--prs_createde: ${{ steps.release.outputs.prs_created }}
 
     steps:
       - name: Checkout code
@@ -29,6 +30,12 @@ jobs:
           echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
           echo "📰 This job is triggered by this event: ${{ github.event_name }}"
 
+      - name: Check working directory
+        run: pwd && ls -la
+
+      - name: Check config file
+        run: cat ${{ github.workspace }}/Repo/release-please-config.json || echo "'release-please-config.json' not found"
+
       - name: Run Release Please
         id: release
         uses: googleapis/release-please-action@v4
@@ -36,20 +43,21 @@ jobs:
           release-type: simple
           token: ${{ secrets.GITHUB_TOKEN }}
           # optional. customize path to release-please-config.json
-          config-file: Repo/release-please-config.json
+          config-file: ${{ github.workspace }}/Repo/release-please-config.json
           # optional. customize path to .release-please-manifest.json
-          manifest-file: Repo/release-please-manifest.json
+          manifest-file: ${{ github.workspace }}/Repo/.release-please-manifest.json
 
       - name: Print release outputs for debugging
         run: |
           echo "Release outputs:"
-          echo "${{ toJson(steps.release.outputs) }}"
+          echo "RELEASE CREATED: ${{ steps.release.outputs.releases_created }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "PR CREATED/UPDATED: ${{ steps.release.outputs.prs_created }}" | tee -a $GITHUB_STEP_SUMMARY
 
       - name: Status
         run: echo "🍏 This job's status is ${{ job.status }}."
 
   release-zip:
-    if: ${{ needs.release-please.outputs.release--release_created }}
+    if: ${{ needs.release-please.outputs.release--releases_created == 'true' }}
     runs-on: ubuntu-latest
     needs: release-please
 
