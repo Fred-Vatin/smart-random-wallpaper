@@ -8,8 +8,6 @@
 		".": {
 			"package-name": "Repo/Lively-Wallpaper-Random",
 			"changelog-path": "Repo/CHANGELOG.md",
-			"version-file": "Repo/version.txt",
-			"extra-files": ["Repo/release-notes.md"],
 			"changelog-sections": [
 				{
 					"type": "build",

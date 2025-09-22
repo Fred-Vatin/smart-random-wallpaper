@@ -11,6 +11,11 @@ permissions:
   issues: write
   pull-requests: write
 
+env:
+  CONFIG_FILE_PATH: Repo/release-please-config.json
+  MANIFEST_FILE_PATH: Repo/.release-please-manifest.json
+  RELEASE_NOTES_PATH: Repo/release-notes.md
+
 jobs:
   release-please:
     runs-on: ubuntu-latest
@@ -29,11 +34,6 @@ jobs:
           echo "🐧 This job is running on a ${{ runner.os }} server hosted by GitHub!"
           echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
           echo "📰 This job is triggered by this event: ${{ github.event_name }}"
-
-      - name: Define config files path
-        run: |
-          echo "CONFIG_FILE_PATH=Repo/release-please-config.json" >> $GITHUB_ENV
-          echo "MANIFEST_FILE_PATH=Repo/.release-please-manifest.json" >> $GITHUB_ENV
 
       - name: Check working directory
         run: |
@@ -54,9 +54,6 @@ jobs:
       - name: Run Release Please
         id: release
         uses: googleapis/release-please-action@v4
-        env:
-          CONFIG_FILE_PATH: ${{ env.CONFIG_FILE_PATH }}
-          MANIFEST_FILE_PATH: ${{ env.MANIFEST_FILE_PATH }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: ${{ env.CONFIG_FILE_PATH }}
@@ -94,15 +91,18 @@ jobs:
 
       - name: Create ZIP archive
         run: |
-          zip -r release.zip *.ps1 *.rmskin 2>/dev/null || true
+          zip -r LivelyWallpaperRandom-${{ needs.release-please.outputs.release--tag_name }}.zip *.ps1 *.rmskin 2>/dev/null || true
 
       - name: Upload ZIP to Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ needs.release-please.outputs.release--tag_name }} ./release.zip --clobber
-          mv release.zip LivelyWallpaperRandom-${{ needs.release-please.outputs.release--tag_name }}.zip
           gh release upload ${{ needs.release-please.outputs.release--tag_name }} ./LivelyWallpaperRandom-${{ needs.release-please.outputs.release--tag_name }}.zip --clobber
+
+      - name: Get release-notes
+        id: get-notes
+        run: |
+          cat ${{ env.RELEASE_NOTES_PATH }} | tee -a  $GITHUB_OUTPUT
 
       - name: Status
         run: echo "🍏 This job's status is ${{ job.status }}."
