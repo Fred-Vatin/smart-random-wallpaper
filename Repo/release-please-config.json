@@ -3,7 +3,7 @@
 	"include-component-in-tag": false,
 	"include-v-in-tag": true,
 	"pull-request-header": "🤖 I have created a release",
-	"pull-request-footer": "Download the `LivelyWallpaperRandom.zip` file and read the [wiki](https://github.com/Fred-Vatin/smart-random-wallpaper/wiki) to start.",
+	"pull-request-footer": " ",
 	"packages": {
 		".": {
 			"package-name": "Lively-Wallpaper-Random",
