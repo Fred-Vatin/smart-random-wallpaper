@@ -17,7 +17,8 @@ jobs:
 
     outputs:
       release--tag_name: ${{ steps.release.outputs.tag_name }}
-      release--release_created: ${{ steps.release.outputs.release_created }}
+      release--releases_created: ${{ steps.release.outputs.releases_created }}
+      release--prs_createde: ${{ steps.release.outputs.prs_created }}
 
     steps:
       - name: Checkout code
@@ -29,27 +30,49 @@ jobs:
           echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
           echo "📰 This job is triggered by this event: ${{ github.event_name }}"
 
+      - name: Define config files path
+        run: |
+          echo "CONFIG_FILE_PATH=Repo/release-please-config.json" >> $GITHUB_ENV
+          echo "MANIFEST_FILE_PATH=Repo/.release-please-manifest.json" >> $GITHUB_ENV
+
+      - name: Check working directory
+        run: |
+          pwd
+          if [ -d "Repo" ]; then
+            echo "/Repo content:"
+            ls -la Repo
+          else
+            echo "/Repo sub-dir doesn’t exist. Show root:"
+            ls -la
+          fi
+
+      - name: Check config file
+        run: |
+          cat $CONFIG_FILE_PATH || echo "'release-please-config.json' not found"
+          cat $MANIFEST_FILE_PATH || echo "'.release-please-manifest.json' not found"
+
       - name: Run Release Please
         id: release
         uses: googleapis/release-please-action@v4
+        env:
+          CONFIG_FILE_PATH: ${{ env.CONFIG_FILE_PATH }}
+          MANIFEST_FILE_PATH: ${{ env.MANIFEST_FILE_PATH }}
         with:
-          release-type: simple
           token: ${{ secrets.GITHUB_TOKEN }}
-          # optional. customize path to release-please-config.json
-          config-file: Repo/release-please-config.json
-          # optional. customize path to .release-please-manifest.json
-          manifest-file: Repo/release-please-manifest.json
+          config-file: ${{ env.CONFIG_FILE_PATH }}
+          manifest-file: ${{ env.MANIFEST_FILE_PATH }}
 
       - name: Print release outputs for debugging
         run: |
           echo "Release outputs:"
-          echo "${{ toJson(steps.release.outputs) }}"
+          echo "RELEASE CREATED: ${{ steps.release.outputs.releases_created }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "PR CREATED/UPDATED: ${{ steps.release.outputs.prs_created }}" | tee -a $GITHUB_STEP_SUMMARY
 
       - name: Status
         run: echo "🍏 This job's status is ${{ job.status }}."
 
   release-zip:
-    if: ${{ needs.release-please.outputs.release--release_created }}
+    if: ${{ needs.release-please.outputs.release--releases_created == 'true' }}
     runs-on: ubuntu-latest
     needs: release-please
 
@@ -66,7 +89,8 @@ jobs:
       - name: Print release outputs for debugging
         run: |
           echo "Release outputs:"
-          echo "${{ toJson(needs.release-please.outputs.release) }}"
+          echo "RELEASE CREATED: ${{ needs.release-please.outputs.release--releases_created }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "PR CREATED/UPDATED: ${{ needs.release-please.outputs.release--prs_createde }}" | tee -a $GITHUB_STEP_SUMMARY
 
       - name: Create ZIP archive
         run: |
