@@ -598,36 +598,46 @@ if ($Restart) {
     $ProcessName = $LivelyBin
   }
 
-  Write-Host "Shutdown Lively…`n"
-  & $LivelyBin --shutdown true
-
-  # Wait the process to be stopped but continue the script if process still running after 10 seconds
-  Wait-Process -Name $ProcessName -Timeout 10 -ErrorAction SilentlyContinue
-
-  Start-Sleep -Seconds 2
-
-  # Need to check if no other instance is running
   $process = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue
 
   if ($process) {
 
-    Write-Host "Lively process still detected, tring to kill it…" -ForegroundColor Yellow
+    Write-Host "Shutdown Lively…`n"
+    & $LivelyBin --shutdown true
 
-    Stop-Process -InputObject $process -Force
-    Wait-Process -InputObject $process -ErrorAction SilentlyContinue
+    # Wait the process to be stopped but continue the script if process still running after 10 seconds
+    Wait-Process -Name $ProcessName -Timeout 10 -ErrorAction SilentlyContinue
 
-    $processCheck = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 2
 
-    if (-not $processCheck) {
-      Write-Host "Success : Lively has been stopped." -ForegroundColor Green
+    # Need to check if no other instance is running
+    $process = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue
+
+    if ($process) {
+
+      Write-Host "Lively process still detected, tring to kill it…" -ForegroundColor Yellow
+
+      Stop-Process -InputObject $process -Force
+      Wait-Process -InputObject $process -ErrorAction SilentlyContinue
+
+      $processCheck = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue
+
+      if (-not $processCheck) {
+        Write-Host "Success : Lively has been stopped." -ForegroundColor Green
+      }
+      else {
+        TerminateWithError -errorMessage "Fail : Lively still active."
+      }
     }
     else {
-      TerminateWithError -errorMessage "Fail : Lively still active."
+      Write-Host "Success : Lively has been stopped." -ForegroundColor Green
     }
+
   }
   else {
-    Write-Host "Success : Lively has been stopped." -ForegroundColor Green
+    Write-Host "Lively is not running."
   }
+
 
   Write-Host "`nStarting Lively…`n"
   & $LivelyBin --showApp true
