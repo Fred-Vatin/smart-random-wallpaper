@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/Fred-Vatin/smart-random-wallpaper/compare/v1.0.3...v1.0.4) (2025-09-25)
+
+
+### 🐞 Bug Fixes
+
+* restart succeeds if lively unresponsive ([3a55668](https://github.com/Fred-Vatin/smart-random-wallpaper/commit/3a556680d95fa100269bec788403e75e265ad006))
+
 ## [1.0.3](https://github.com/Fred-Vatin/smart-random-wallpaper/compare/v1.0.2...v1.0.3) (2025-09-24)
 
 
