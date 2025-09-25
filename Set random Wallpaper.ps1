@@ -606,9 +606,9 @@ if ($Restart) {
     & $LivelyBin --shutdown true
 
     # Wait the process to be stopped but continue the script if process still running after 10 seconds
-    Wait-Process -Name $ProcessName -Timeout 10 -ErrorAction SilentlyContinue
+    Wait-Process -Name $ProcessName -Timeout 2 -ErrorAction SilentlyContinue
 
-    Start-Sleep -Seconds 2
+    Start-Sleep -Seconds 2 # a short delay is necessary for some reason
 
     # Need to check if no other instance is running
     $process = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue
@@ -619,6 +619,8 @@ if ($Restart) {
 
       Stop-Process -InputObject $process -Force
       Wait-Process -InputObject $process -ErrorAction SilentlyContinue
+
+      Start-Sleep -Seconds 2 # a short delay is necessary for some reason
 
       $processCheck = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue
 
