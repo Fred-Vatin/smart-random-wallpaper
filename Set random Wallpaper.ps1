@@ -368,6 +368,11 @@ $SetRandom = {
 
   # Write-Host "`$randomWallpaperPath: $randomWallpaperPath"
 
+  # Closing all wallpapers first could prevent bugs such as msedgewebview2.exe not closing when setting a new wallpaper
+  & $LivelyBin closewp --monitor -1
+
+  Start-Sleep -Seconds 4
+
   & $LivelyBin setwp --file "$randomWallpaperPath"
 
   Write-Host "`nNew wallapaper set: " -NoNewline
