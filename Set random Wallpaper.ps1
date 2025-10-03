@@ -366,13 +366,6 @@ $SetRandom = {
 
   $randomWallpaperPath = (Join-Path -Path $WallpapersPath -ChildPath $randomWallpaper.Folder)
 
-  # Write-Host "`$randomWallpaperPath: $randomWallpaperPath"
-
-  # Closing all wallpapers first could prevent bugs such as msedgewebview2.exe not closing when setting a new wallpaper
-  & $LivelyBin closewp --monitor -1
-
-  Start-Sleep -Seconds 4
-
   & $LivelyBin setwp --file "$randomWallpaperPath"
 
   Write-Host "`nNew wallapaper set: " -NoNewline
@@ -384,7 +377,7 @@ $SetRandom = {
 $Exclude = {
   param($List = $Wallpapers)
 
-  $RequiredTags = $ExcludeTags -split '\s+'
+  $RequiredTags = $ExcludeTags.Trim() -split '\s+'
 
   $FilteredList = $Wallpapers | Where-Object {
     $tags = $_.Tags -split '\s+'
@@ -521,7 +514,7 @@ if ($All) {
 if ($IncludeTags) {
   . $ImportList
 
-  $RequiredTags = $IncludeTags -split '\s+'
+  $RequiredTags = $IncludeTags.Trim() -split '\s+'
 
   $FilteredList = $Wallpapers | Where-Object {
     $tags = $_.Tags -split '\s+'
