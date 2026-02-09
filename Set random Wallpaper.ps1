@@ -45,24 +45,41 @@ New-Variable -Name ListFile -Value "Wallpapers list.ps1" -Option Constant
 New-Variable -Name ListPath -Value $(Join-Path -Path $WorkingDir -ChildPath $ListFile) -Option Constant
 New-Variable -Name EnvPathName -Value "WallpapersPath" -Option Constant
 New-Variable -Name EnvPrevName -Value "WallpaperPrevious" -Option Constant
-New-Variable -Name WallpapersFolder -Value "wallpapers" -Option Constant
-New-Variable -Name WallpapersPathFallback -Value "$env:LOCALAPPDATA/Lively Wallpaper/Library/wallpapers" -Option Constant
+New-Variable -Name WallpapersFolder1 -Value "wallpapers" -Option Constant
+New-Variable -Name WallpapersFolder2 -Value "SaveData/wptmp" -Option Constant
+New-Variable -Name LibraryPathFallback -Value "$env:LOCALAPPDATA/Lively Wallpaper/Library" -Option Constant
 New-Variable -Name LivelyBin -Value "$env:ProgramFiles/Lively Wallpaper/Lively.exe"
 New-Variable -Name repo -Value "https://github.com/Fred-Vatin/smart-random-wallpaper/wiki" -Option Constant
 
 <#*==========================================================================
 * ℹ		GLOBAL INIT
 ===========================================================================#>
-# If you set a custom path with -SetPath, get it
-$WallpapersPath = [System.Environment]::GetEnvironmentVariable($EnvPathName, "User")
+# If you set a custom path with -SetWallpapersPath, get it
+$LibraryPath = [System.Environment]::GetEnvironmentVariable($EnvPathName, "User")
 
-if (-not ($WallpapersPath)) {
-  $WallpapersPath = (Join-Path -Path $WorkingDir -ChildPath $WallpapersFolder)
+if (-not ($LibraryPath)) {
+  $LibraryPath = $WorkingDir
 
-  if (-not (Test-Path $WallpapersPath -PathType Container)) {
-    $WallpapersPath = $WallpapersPathFallback
+  if (-not (Test-Path $LibraryPath -PathType Container)) {
+    $LibraryPath = $LibraryPathFallback
+  }
+
+  if (-not (Test-Path $LibraryPath -PathType Container)) {
+    Write-Host "LibraryPath: `"$LibraryPath`" does not exit. Run `"-Help`" or `"-Man`" or `"-Debug`" to know more." -ForegroundColor Red
   }
 }
+
+$WallpapersPath1 = (Join-Path -Path $LibraryPath -ChildPath $WallpapersFolder1)
+$WallpapersPath2 = (Join-Path -Path $LibraryPath -ChildPath $WallpapersFolder2)
+
+if (-not (Test-Path $WallpapersPath1 -PathType Container)) {
+  Write-Host "WallpapersPath1: `"$WallpapersPath1`" does not exit. Run `"-Help`" or `"-Man`" or `"-Debug`" to know more." -ForegroundColor Red
+}
+
+$WallpapersPaths = @(
+  $WallpapersPath1
+  $WallpapersPath2
+)
 
 # If lively is not installed in program files, try to find the CLI tool
 if (-not (Test-Path -Path $LivelyBin -PathType Leaf)) {
@@ -81,7 +98,9 @@ if (-not (Test-Path -Path $LivelyBin -PathType Leaf)) {
   }
 }
 
-Write-Debug "WallpapersPath: $WallpapersPath"
+Write-Debug "LibraryPath: $LibraryPath"
+Write-Debug "WallpapersPath1: $WallpapersPath1"
+Write-Debug "WallpapersPath2: $WallpapersPath2"
 Write-Debug "ListPath: $ListPath"
 Write-Debug "LivelyBin: $LivelyBin"
 
@@ -137,17 +156,18 @@ function Show-Help {
   Write-Host "`tUse this parameter to run an assistant to help you to define"
   Write-Host "`tthe custom lively wallpapers path to use."
   Write-Host "`tIt will be saved in the environment variable named `"$EnvPathName`"."
-  Write-Host "`tBy default, this script use the `"$WallpapersFolder`" directory in the same path as this script."
-  Write-Host "`tIf not found it tries to use the default path: `"$WallpapersPathFallback`"."
+  Write-Host "`tBy default, this script use the working directory (the same path as this script)."
+  Write-Host "`tThe path expects some sub-directories: `"wallpapers`" and `"SaveData\wptmp`"."
+  Write-Host "`tIf not found it tries to use the default path: `"$LibraryPathFallback`"."
   Write-Host "`tCurrent value: " -NoNewline
-  Write-Host "$WallpapersPath`n" -ForegroundColor Cyan
+  Write-Host "$LibraryPath`n" -ForegroundColor Cyan
 
   Write-Host "-ForgetWallpapersPath" -ForegroundColor Magenta
   Write-Host "`tUse this parameter to delete the " -NoNewline
   Write-Host "$EnvPathName " -ForegroundColor Cyan -NoNewline
   Write-Host "environment variable."
-  Write-Host "`tThen this script will use the `"$WallpapersFolder`" directory in the same path as this script`n"
-  Write-Host "`tOr `"$WallpapersPathFallback`" if not found.`n"
+  Write-Host "`tThen this script will use the current working directory `"$WorkingDir`"`n"
+  Write-Host "`tOr `"$LibraryPathFallback`" if not found.`n"
 
   Write-Host "ListPath" -ForegroundColor Yellow
   Write-Host "`tThis is where the `"$ListFile`" is saved." -ForegroundColor DarkGray
@@ -240,73 +260,74 @@ function SetPath {
     TerminateWithError -errorMessage "The path failed to be registered as a user environment variable."
   }
 
-  $WallpapersPath = [System.Environment]::GetEnvironmentVariable($EnvPathName, "User")
+  $LibraryPath = [System.Environment]::GetEnvironmentVariable($EnvPathName, "User")
 
   # Clear-Host
-  Write-Host "`nWallpapers path: " -ForegroundColor Green -NoNewline
-  Write-Host "$WallpapersPath" -ForegroundColor Cyan
-  Write-Host "saved in the the " -ForegroundColor Green -NoNewline
-  Write-Host "$EnvPathName " -ForegroundColor Cyan -NoNewline
-  Write-Host "environment variable." -ForegroundColor Green
+  Write-Host "`nLibrary path: " -ForegroundColor Green -NoNewline
+  Write-Host "$LibraryPath" -ForegroundColor Cyan
+  Write-Host "saved in the user environment variable named " -ForegroundColor Green -NoNewline
+  Write-Host "$EnvPathName" -ForegroundColor Cyan -NoNewline
   Write-Host "`nThis will take effect in a new pwsh session though." -ForegroundColor Yellow
 
-
   # Retourne le chemin.
-  return $WallpapersPath
+  return $LibraryPath
 }
 
 function UpdateList {
   $Output = '$Wallpapers = @()' + [Environment]::NewLine
 
-  if (Test-Path -Path $WallpapersPath -PathType Container) {
-    # Browse each Wallpapers child folder (non-recursively)
-    Get-ChildItem -Path $WallpapersPath -Directory | ForEach-Object {
-      $CurrentFolder = $_.Name
-      # Path to the LivelyInfo.json file in the current folder
-      $jsonFile = Join-Path -Path $_.FullName -ChildPath 'LivelyInfo.json'
+  foreach ($path in $WallpapersPaths) {
 
-      if (Test-Path -Path $jsonFile -PathType Leaf) {
-        try {
-          # Read JSON file
-          $jsonContent = Get-Content -Path $jsonFile -Raw | ConvertFrom-Json
-          # Get wallpaper title
-          $Title = $jsonContent.Title
+    if (Test-Path -Path $path -PathType Container) {
+      # Browse each Wallpapers child folder (non-recursively)
+      Get-ChildItem -Path $path -Directory | ForEach-Object {
+        $CurrentFolder = $_.Name
+        # Path to the LivelyInfo.json file in the current folder
+        $jsonFile = Join-Path -Path $_.FullName -ChildPath 'LivelyInfo.json'
 
-          # Get wallpaper tags
-          $Tags = $jsonContent.Desc
-          if ($Tags) {
-            $Tags = ($Tags | Select-String -Pattern '#\w+' -AllMatches).Matches.Value -join ' '
-            $Tags = $Tags.Replace("#", "")
-          }
+        if (Test-Path -Path $jsonFile -PathType Leaf) {
+          try {
+            # Read JSON file
+            $jsonContent = Get-Content -Path $jsonFile -Raw | ConvertFrom-Json
+            # Get wallpaper title
+            $Title = $jsonContent.Title
 
-          if ($Title) {
-            # If title is like "The 80's", replace with "The 80''s" to avoid parsing error later
-            $Title = $Title.Replace("'", "''")
-            $Title = $Title.Replace('"', "''")
-
-            # Add formated text to $Output
-            $Output += "`$Wallpapers += New-Object -TypeName psobject -Property @{" + [Environment]::NewLine
-            $Output += "    'Folder' = '$CurrentFolder'" + [Environment]::NewLine
-            $Output += "    'Title' = '$Title'" + [Environment]::NewLine
-
+            # Get wallpaper tags
+            $Tags = $jsonContent.Desc
             if ($Tags) {
-              $Output += "    'Tags' = '$Tags'" + [Environment]::NewLine
+              $Tags = ($Tags | Select-String -Pattern '#\w+' -AllMatches).Matches.Value -join ' '
+              $Tags = $Tags.Replace("#", "")
             }
 
-            $Output += "}" + [Environment]::NewLine
+            if ($Title) {
+              # If title is like "The 80's", replace with "The 80''s" to avoid parsing error later
+              $Title = $Title.Replace("'", "''")
+              $Title = $Title.Replace("’", "''")
+              $Title = $Title.Replace('"', "''")
+
+              # Add formated text to $Output
+              $Output += "`$Wallpapers += New-Object -TypeName psobject -Property @{" + [Environment]::NewLine
+              $Output += "    'Folder' = '$CurrentFolder'" + [Environment]::NewLine
+              $Output += "    'Title' = '$Title'" + [Environment]::NewLine
+
+              if ($Tags) {
+                $Output += "    'Tags' = '$Tags'" + [Environment]::NewLine
+              }
+
+              $Output += "}" + [Environment]::NewLine
+            }
           }
-        }
-        catch {
-          Write-Warning "Error reading file  `"LivelyInfo.json`" in $CurrentFolder : $_"
+          catch {
+            Write-Warning "Error reading file  `"LivelyInfo.json`" in $CurrentFolder : $_"
+          }
         }
       }
     }
-  }
-  else {
-    Write-Warning "`"$WallpapersFolder`" folder doesn’t exist in: "
-    Write-Host "$WallpapersPath" -ForegroundColor Cyan
-    Set-Location $OriginalWorkingDir
-    exit
+    else {
+      Write-Warning "`"$path`" folder doesn’t exist in: "
+      Write-Host "$LibraryPath" -ForegroundColor Cyan
+      Set-Location $OriginalWorkingDir
+    }
   }
 
   try {
@@ -316,12 +337,32 @@ function UpdateList {
     Write-Host "$ListPath`n" -ForegroundColor Cyan
   }
   catch {
-    TerminateWithError -errorMessage "Failed to create `"$ListPath`""
+    TerminateWithError -errorMessage "Failed to create or write in `"$ListPath`""
   }
 }
 
 function Pause {
   Read-Host "Paused. Press Enter to continue..."
+}
+
+# Usage example
+# $proc = Get-Process -Name "notepad"
+# Stop-ProcessTree -ParentId $proc.Id
+function Stop-ProcessTree {
+  param(
+    [Parameter(Mandatory)]
+    [int]$ParentId
+  )
+
+  # Find all children recursively
+  $children = Get-CimInstance Win32_Process | Where-Object { $_.ParentProcessId -eq $ParentId }
+
+  foreach ($child in $children) {
+    Stop-ProcessTree -ParentId $child.ProcessId
+  }
+
+  # Finally stop the parent
+  Stop-Process -Id $ParentId -Force -ErrorAction SilentlyContinue
 }
 
 $ImportList = {
@@ -364,7 +405,7 @@ $SetRandom = {
     TerminateWithError -errorMessage "`"$randomWallpaper.Folder`" failed to be registered as the user environment variable `"$EnvPrevName`""
   }
 
-  $randomWallpaperPath = (Join-Path -Path $WallpapersPath -ChildPath $randomWallpaper.Folder)
+  $randomWallpaperPath = (Join-Path -Path $LibraryPath -ChildPath $randomWallpaper.Folder)
 
   & $LivelyBin setwp --file "$randomWallpaperPath"
 
@@ -373,27 +414,6 @@ $SetRandom = {
   Write-Host "`ttagged: " -NoNewline
   Write-Host "$($randomWallpaper.Tags)" -ForegroundColor Green -NoNewline
 }
-
-# Usage example
-# $proc = Get-Process -Name "notepad"
-# Stop-ProcessTree -ParentId $proc.Id
-function Stop-ProcessTree {
-  param(
-    [Parameter(Mandatory)]
-    [int]$ParentId
-  )
-
-  # Find all children recursively
-  $children = Get-CimInstance Win32_Process | Where-Object { $_.ParentProcessId -eq $ParentId }
-
-  foreach ($child in $children) {
-    Stop-ProcessTree -ParentId $child.ProcessId
-  }
-
-  # Finally stop the parent
-  Stop-Process -Id $ParentId -Force -ErrorAction SilentlyContinue
-}
-
 
 $Exclude = {
   param($List = $Wallpapers)
