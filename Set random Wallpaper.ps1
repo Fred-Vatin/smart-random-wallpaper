@@ -374,6 +374,27 @@ $SetRandom = {
   Write-Host "$($randomWallpaper.Tags)" -ForegroundColor Green -NoNewline
 }
 
+# Usage example
+# $proc = Get-Process -Name "notepad"
+# Stop-ProcessTree -ParentId $proc.Id
+function Stop-ProcessTree {
+  param(
+    [Parameter(Mandatory)]
+    [int]$ParentId
+  )
+
+  # Find all children recursively
+  $children = Get-CimInstance Win32_Process | Where-Object { $_.ParentProcessId -eq $ParentId }
+
+  foreach ($child in $children) {
+    Stop-ProcessTree -ParentId $child.ProcessId
+  }
+
+  # Finally stop the parent
+  Stop-Process -Id $ParentId -Force -ErrorAction SilentlyContinue
+}
+
+
 $Exclude = {
   param($List = $Wallpapers)
 
@@ -592,6 +613,7 @@ if ($ExcludeTags) {
 if ($Restart) {
 
   $ProcessName = "Lively"
+  $SubProcessName = "Lively.Player.WebView2"
   if ($LivelyBin -eq "Livelycu") {
     $ProcessName = $LivelyBin
   }
@@ -601,9 +623,10 @@ if ($Restart) {
   if ($process) {
 
     Write-Host "Shutdown Lively…`n"
-    & $LivelyBin --shutdown true
+    # & $LivelyBin --shutdown true
+    Stop-ProcessTree -ParentId $process.Id
 
-    # Wait the process to be stopped but continue the script if process still running after 10 seconds
+    # Wait for the process to be stopped but continue the script if process still running after 4 seconds
     Wait-Process -Name $ProcessName -Timeout 2 -ErrorAction SilentlyContinue
 
     Start-Sleep -Seconds 2 # a short delay is necessary for some reason
@@ -613,7 +636,7 @@ if ($Restart) {
 
     if ($process) {
 
-      Write-Host "Lively process still detected, tring to kill it…" -ForegroundColor Yellow
+      Write-Host "Lively process still detected, trying to kill it…" -ForegroundColor Yellow
 
       Stop-Process -InputObject $process -Force
       Wait-Process -InputObject $process -ErrorAction SilentlyContinue
@@ -631,6 +654,26 @@ if ($Restart) {
     }
     else {
       Write-Host "Success : Lively has been stopped." -ForegroundColor Green
+    }
+
+    $SubProcess = Get-Process -Name $SubProcessName -ErrorAction SilentlyContinue
+
+    if ($SubProcess) {
+      Write-Host "It seems `"$SubProcessName`" process is still active though, trying to kill it…" -ForegroundColor Yellow
+      Stop-ProcessTree -ParentId $SubProcess.Id
+
+      Wait-Process -InputObject $SubProcess -ErrorAction SilentlyContinue
+
+      Start-Sleep -Seconds 2 # a short delay is necessary for some reason
+
+      $processCheck = Get-Process -Name $SubProcessName -ErrorAction SilentlyContinue
+
+      if (-not $processCheck) {
+        Write-Host "Success : `"$SubProcessName`" has been stopped." -ForegroundColor Green
+      }
+      else {
+        TerminateWithError -errorMessage "Fail : `"$SubProcessName`" still active."
+      }
     }
 
   }
