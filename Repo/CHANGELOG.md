@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/Fred-Vatin/smart-random-wallpaper/compare/v1.1.0...v1.1.1) (2026-02-10)
+
+
+### 🐞 Bug Fixes
+
+* -restart should kill all sub-processes now ([99acccb](https://github.com/Fred-Vatin/smart-random-wallpaper/commit/99acccb1928598d0e9b8f54c15e8c815206bb97a)), closes [#20](https://github.com/Fred-Vatin/smart-random-wallpaper/issues/20)
+* Handle wallpapers created by user ([434f896](https://github.com/Fred-Vatin/smart-random-wallpaper/commit/434f896eb797fa3c5064c00dea48a3128c7f6da1)), closes [#21](https://github.com/Fred-Vatin/smart-random-wallpaper/issues/21)
+
 ## [1.1.0](https://github.com/Fred-Vatin/smart-random-wallpaper/compare/v1.0.4...v1.1.0) (2025-10-03)
 
 
