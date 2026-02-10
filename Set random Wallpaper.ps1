@@ -278,10 +278,12 @@ function UpdateList {
 
   foreach ($path in $WallpapersPaths) {
 
+    Write-Debug "Path: $path"
+
     if (Test-Path -Path $path -PathType Container) {
       # Browse each Wallpapers child folder (non-recursively)
       Get-ChildItem -Path $path -Directory | ForEach-Object {
-        $CurrentFolder = $_.Name
+        $CurrentFolder = $_.FullName
         # Path to the LivelyInfo.json file in the current folder
         $jsonFile = Join-Path -Path $_.FullName -ChildPath 'LivelyInfo.json'
 
@@ -402,12 +404,16 @@ $SetRandom = {
     $null = New-ItemProperty -Path "HKCU:\Environment" -Name $EnvPrevName -Value $randomWallpaper.Folder -PropertyType String -Force
   }
   catch {
-    TerminateWithError -errorMessage "`"$randomWallpaper.Folder`" failed to be registered as the user environment variable `"$EnvPrevName`""
+    TerminateWithError -errorMessage "`"$($randomWallpaper.Folder)`" failed to be registered as the user environment variable `"$EnvPrevName`""
   }
 
-  $randomWallpaperPath = (Join-Path -Path $LibraryPath -ChildPath $randomWallpaper.Folder)
+  if (-not (Test-Path $randomWallpaper.Folder -PathType Container)) {
+    TerminateWithError -errorMessage "`"$($randomWallpaper.Folder)`" does not exist. You need to use -UpdateList."
+  }
 
-  & $LivelyBin setwp --file "$randomWallpaperPath"
+  & $LivelyBin setwp --file "$($randomWallpaper.Folder)"
+
+  Write-Debug "$LivelyBin setwp --file `"$($randomWallpaper.Folder)`""
 
   Write-Host "`nNew wallapaper set: " -NoNewline
   Write-Host "$($randomWallpaper.Title)" -ForegroundColor Green -NoNewline
