@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/Fred-Vatin/smart-random-wallpaper/compare/v1.1.1...v1.1.2) (2026-02-10)
+
+
+### 🐞 Bug Fixes
+
+* set wallpaper failed ([b5354fa](https://github.com/Fred-Vatin/smart-random-wallpaper/commit/b5354fa51f3586373d4b4d4437f90c9aba7be0a0))
+
 ## [1.1.1](https://github.com/Fred-Vatin/smart-random-wallpaper/compare/v1.1.0...v1.1.1) (2026-02-10)
 
 
